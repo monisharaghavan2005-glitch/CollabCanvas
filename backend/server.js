@@ -90,7 +90,7 @@ app.get("/api/health", async (req, res) => {
   } catch (error) {
     console.error(
       "Database health check failed:",
-      error.message
+      error
     );
 
     res.status(500).json({

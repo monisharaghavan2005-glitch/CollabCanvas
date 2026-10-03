@@ -2,11 +2,10 @@
 // COLLABCANVAS BACKEND SERVER
 // ======================================================
 
-// IMPORTANT:
-// Load environment variables BEFORE importing the database pool.
 const dotenv = require("dotenv");
 dotenv.config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
@@ -39,11 +38,12 @@ const advancedRoutes = require("./routes/advancedRoutes");
 
 const app = express();
 
-// Required when deployed behind Render's reverse proxy.
 app.set("trust proxy", 1);
 
 const PORT = process.env.PORT || 5000;
 
+// In production, frontend and backend use the same URL.
+// Locally, frontend can still use localhost:5173.
 const CLIENT_URL =
   process.env.CLIENT_URL || "http://localhost:5173";
 
@@ -92,16 +92,16 @@ const apiLimiter = rateLimit({
 app.use("/api", apiLimiter);
 
 // ======================================================
-// BASIC ROOT ROUTE
+// REACT FRONTEND
 // ======================================================
 
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "CollabCanvas backend is running",
-    realtime: "Socket.IO enabled",
-  });
-});
+const frontendPath = path.join(
+  __dirname,
+  "../frontend/dist"
+);
+
+// Serve React static files
+app.use(express.static(frontendPath));
 
 // ======================================================
 // API ROUTES
@@ -143,6 +143,32 @@ app.get("/api/health", async (req, res) => {
           : error.message,
     });
   }
+});
+
+// ======================================================
+// REACT SPA FALLBACK
+// ======================================================
+
+// Root page
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.join(frontendPath, "index.html")
+  );
+});
+
+// React Router fallback
+app.use((req, res, next) => {
+  if (
+    req.method === "GET" &&
+    !req.path.startsWith("/api")
+  ) {
+    return res.sendFile(
+      path.join(frontendPath, "index.html"
+      )
+    );
+  }
+
+  next();
 });
 
 // ======================================================
@@ -694,24 +720,31 @@ server.listen(
     console.log(
       "========================================"
     );
+
     console.log(
       "       COLLABCANVAS BACKEND"
     );
+
     console.log(
       "========================================"
     );
+
     console.log(
       `Server listening on port ${PORT}`
     );
+
     console.log(
       `Health endpoint: /api/health`
     );
+
     console.log(
       `Client URL: ${CLIENT_URL}`
     );
+
     console.log(
       "Realtime: Socket.IO enabled"
     );
+
     console.log(
       "========================================"
     );

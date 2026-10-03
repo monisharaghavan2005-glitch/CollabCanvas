@@ -1,0 +1,492 @@
+/* =========================================================
+   COLLABCANVAS EDITOR
+   ========================================================= */
+
+.canvas-surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: #080e1b;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.canvas-surface.show-grid {
+  background-image:
+    linear-gradient(rgba(74, 91, 122, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 91, 122, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.canvas-surface.hide-grid {
+  background-image: none;
+}
+
+.canvas-world {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+.canvas-object {
+  position: absolute;
+  box-sizing: border-box;
+  cursor: move;
+  touch-action: none;
+}
+
+.canvas-object.selected {
+  outline: 1px solid #7c83ff;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.18);
+}
+
+.canvas-object svg {
+  display: block;
+  overflow: visible;
+}
+
+.canvas-text-object,
+.canvas-edit-textarea,
+.sticky-content {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.canvas-text-object {
+  padding: 8px;
+}
+
+.canvas-edit-textarea {
+  resize: none;
+  border: 0;
+  outline: 2px solid #818cf8;
+  background: rgba(10, 15, 28, 0.92);
+  padding: 8px;
+}
+
+.sticky-content {
+  padding: 18px;
+  color: #241d0b !important;
+  display: flex;
+  align-items: flex-start;
+}
+
+.sticky-editor {
+  background: #f5c84b;
+  color: #241d0b !important;
+}
+
+.selection-handle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: #fff;
+  border: 1px solid #6366f1;
+  z-index: 4;
+}
+
+.selection-handle.nw { left: -5px; top: -5px; }
+.selection-handle.ne { right: -5px; top: -5px; }
+.selection-handle.sw { left: -5px; bottom: -5px; }
+.selection-handle.se { right: -5px; bottom: -5px; }
+
+.canvas-empty-minimal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+  color: #64748b;
+}
+
+.canvas-empty-minimal strong {
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.canvas-empty-minimal span {
+  font-size: 11px;
+}
+
+.empty-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #6366f1;
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.8);
+  margin-bottom: 5px;
+}
+
+.canvas-status-pill {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  border: 1px solid #26334a;
+  background: rgba(12, 19, 34, 0.92);
+  color: #718096;
+  font-size: 11px;
+  backdrop-filter: blur(12px);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+/* LEFT TOOLBAR */
+
+.editor-left-toolbar {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  bottom: 14px;
+  width: 72px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 7px;
+  border: 1px solid #27344b;
+  border-radius: 13px;
+  background: rgba(13, 20, 35, 0.94);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.tool-brand {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #635bff, #7c3aed);
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 7px 22px rgba(99, 91, 255, 0.3);
+}
+
+.tool-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.editor-tool {
+  width: 58px;
+  min-height: 52px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #77859c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.editor-tool span {
+  font-size: 9px;
+}
+
+.editor-tool kbd {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  font-size: 7px;
+  color: #58677f;
+  opacity: 0.8;
+}
+
+.editor-tool:hover {
+  background: #1b263a;
+  color: #dbe3f0;
+}
+
+.editor-tool.active {
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.2);
+}
+
+.tool-divider {
+  width: 42px;
+  height: 1px;
+  margin: 10px 0;
+  background: #26344c;
+}
+
+.compact-tools {
+  gap: 4px;
+}
+
+.editor-icon-button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #78869d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.editor-icon-button:hover {
+  background: #1b263a;
+  color: #e2e8f0;
+}
+
+.editor-icon-button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.editor-icon-button.selected {
+  background: #242d4d;
+  color: #a5b4fc;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.zoom-readout {
+  width: 48px;
+  height: 30px;
+  border: 1px solid #2a3851;
+  border-radius: 7px;
+  background: #121b2d;
+  color: #a6b2c5;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+/* SHAPE LIBRARY */
+
+.shape-library {
+  position: absolute;
+  left: 96px;
+  top: 14px;
+  width: 310px;
+  max-height: calc(100% - 28px);
+  overflow: auto;
+  z-index: 60;
+  padding: 15px;
+  border: 1px solid #2a3850;
+  border-radius: 13px;
+  background: rgba(13, 20, 35, 0.98);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(20px);
+}
+
+.shape-library-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 17px;
+}
+
+.shape-library-header strong {
+  display: block;
+  color: #eef2f7;
+  font-size: 14px;
+}
+
+.shape-library-header span {
+  display: block;
+  margin-top: 4px;
+  color: #68778e;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.shape-close {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: #182337;
+  color: #7d8ba2;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.shape-close:hover {
+  color: white;
+  background: #24314a;
+}
+
+.shape-section-title {
+  color: #68778e;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 9px;
+}
+
+.shape-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.shape-choice {
+  min-height: 74px;
+  border: 1px solid #25334a;
+  border-radius: 9px;
+  background: #111a2b;
+  color: #8795aa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.shape-choice:hover {
+  border-color: #6366f1;
+  background: #19233b;
+  color: #c7d2fe;
+}
+
+.shape-choice-icon {
+  color: #8b93ff;
+}
+
+.shape-choice span:last-child {
+  font-size: 9px;
+}
+
+.shape-library-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #243149;
+  color: #526078;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .editor-left-toolbar {
+    width: 56px;
+  }
+
+  .editor-tool {
+    width: 48px;
+  }
+
+  .editor-tool span,
+  .editor-tool kbd {
+    display: none;
+  }
+
+  .shape-library {
+    left: 76px;
+    width: 280px;
+  }
+}
+/* =========================================================
+   FREEHAND DRAWING
+   ========================================================= */
+
+.canvas-surface {
+  touch-action: none;
+}
+
+.canvas-surface.drawing-mode {
+  cursor: crosshair;
+}
+
+.canvas-world {
+  pointer-events: none;
+}
+
+.canvas-object {
+  pointer-events: auto;
+}
+
+.drawing-preview-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 100;
+}
+
+.drawing-mode-indicator {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid #34456a;
+  border-radius: 8px;
+
+  color: #a9b7cc;
+  font-size: 11px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.25);
+
+  pointer-events: none;
+
+  z-index: 200;
+}
+
+.drawing-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #60a5fa;
+
+  box-shadow:
+    0 0 10px rgba(96, 165, 250, 0.8);
+}
+
+.drawing-mode-indicator kbd {
+  margin-left: 5px;
+
+  padding: 3px 6px;
+
+  border-radius: 4px;
+
+  background: #1e293b;
+  border: 1px solid #334155;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+}

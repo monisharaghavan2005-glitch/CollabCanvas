@@ -1,0 +1,1 @@
+export default function StatsCard({icon:Icon,label,value,detail}){return <article className="dashboard-stat"><div className="stat-icon"><Icon size={20}/></div><div><strong>{value}</strong><span>{label}</span>{detail&&<small>{detail}</small>}</div></article>}

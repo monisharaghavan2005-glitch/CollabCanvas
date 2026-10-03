@@ -1,0 +1,1 @@
+export default function Button({children,variant="primary",loading=false,...props}){return <button className={`cc-btn cc-btn-${variant}`} disabled={loading||props.disabled} {...props}>{loading?"Working…":children}</button>}

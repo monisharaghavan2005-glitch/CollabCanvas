@@ -1,7 +1,8 @@
 import { io } from "socket.io-client";
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  import.meta.env.VITE_SOCKET_URL ||
+  window.location.origin;
 
 let socket = null;
 
@@ -10,12 +11,10 @@ const connectSocket = (user) => {
     return null;
   }
 
-  // Already connected
   if (socket?.connected) {
     return socket;
   }
 
-  // Create socket connection
   socket = io(SOCKET_URL, {
     transports: ["websocket", "polling"],
     reconnection: true,
